@@ -14,7 +14,8 @@ datasource db {
 }
 
 model Customer {
-  customer_id    Int      @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
+  customer_id    Int
   first_name     String
   last_name      String
   age            Int
@@ -24,12 +25,11 @@ model Customer {
   current_debt   BigInt
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  loans          Loan[]
 }
 
 model Loan {
-  loan_id         Int      @id @default(autoincrement())
-  customer        Customer @relation(fields: [customer_id], references: [customer_id])
+  id              Int      @id @default(autoincrement())
+  loan_id         Int
   customer_id     Int
   loan_amount     BigInt
   tenure          Int
