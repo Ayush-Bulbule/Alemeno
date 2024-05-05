@@ -83,7 +83,7 @@ export const checkEligibility = async (req, res) => {
   }
 };
 
-// 2 - Create a loan
+// 2 - Create a loan - /create-loan
 export const createLoan = async (req, res)=>{
   try{
       const {customer_id,loan_amount,interest_rate, tenure}  = req.body;
@@ -131,6 +131,106 @@ export const createLoan = async (req, res)=>{
       else{
         res.status(400).json({message: "Loan not approved"});
       }
+  }catch(err){
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+
+// 3. View a loan - /view-loan/:loan_id
+export const viewLoan = async(req, res)=>{
+  try{
+    const {loan_id} =req.params;
+
+    const loan = await loanService.getLoanById(Number(loan_id));
+
+    if(!loan){
+      return res.status(404).json({message: "Loan not found"});
+    }
+
+    res.status(200).json({loan});
+  }catch(err){
+    console.log("Error while fetching loan");
+    console.log(err);
+  }
+}
+
+// 4. Make payment - /make-payment/:customer_id/:loan_id
+
+export const makePayment = async(req, res)=>{
+  try{
+    const {customer_id, loan_id} = req.params;
+    console.log("Customer ID: ", customer_id);
+    console.log("Loan ID: ", loan_id);
+
+    //Get the customer
+    const customer = await customerService.getCustomerById(Number(customer_id));
+    if(!customer){
+      return res.status(400).json({message: "Customer not found"});
+    }
+    const loan = await loanService.getLoanById(Number(loan_id));
+    if(!loan){
+      return res.status(400).json({message: "Loan not found"});
+    }
+
+    // Check if the customer is the owner of the loan
+    if(loan.customer_id !== Number(customer_id)){
+      return res.status(400).json({message: "Customer is not the owner of the loan"});
+    }
+
+    // Check if the loan is already paid
+    if(loan.tenure === loan.emi_paid){
+      return res.status(400).json({message: "Loan already paid"});
+    }
+
+    // Check if the loan is active
+    if(loan.tenure <= loan.emi_paid){
+      return res.status(400).json({message: "Loan is not active"});
+    }
+
+    // Make the payment
+    loan.emi_paid += 1;
+    await loanService.updateLoan(loan.id, loan.emi_paid);
+
+    res.status(200).json({message: "Payment successful", loan});
+
+
+  }catch(err){
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+
+// 5. View statement - /view-statement/:customer_id/:loan_id
+export const viewStatement = async(req, res)=>{
+  try{
+    const {customer_id, loan_id} = req.params;
+
+    const customer = await customerService.getCustomerById(Number(customer_id));
+    if(!customer){
+      return res.status(400).json({message: "Customer not found"});
+    }
+
+    const loan = await loanService.getLoanById(Number(loan_id));
+    if(!loan){
+      return res.status(400).json({message: "Loan not found"});
+    }
+
+    if(loan.customer_id !== Number(customer_id)){
+      return res.status(400).json({message: "Customer is not the owner of the loan"});
+    }
+
+    const statement = {
+      principal_amount: loan.loan_amount,
+      interest_rate: loan.interest_rate,
+      amount_paid:Math.round(loan.emi_paid * loan.monthly_payment*100)/100,
+      monthly_installment: Math.round(loan.monthly_payment*100)/100,
+      remaining_repayments: loan.tenure - loan.emi_paid
+    }
+    console.log("Statement: ", statement);
+    res.status(200).json({customer_id, loan_id, principal:statement.principal_amount,amount_paid: statement.amount_paid, monthly_installment: statement.monthly_installment, repayments_left: statement.remaining_repayments});
   }catch(err){
     console.log(err);
     res.status(500).json({ message: "Internal Server Error" });

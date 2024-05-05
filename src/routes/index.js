@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import { ingestLoanData, ingestCustomerData } from "../controllers/dataIngestionController.js";
 import { registerUser } from "../controllers/customerController.js";
-import { checkEligibility, createLoan } from "../controllers/loanController.js";
+import { checkEligibility, createLoan, makePayment, viewLoan, viewStatement } from "../controllers/loanController.js";
 
 const router = Router();
 
@@ -20,5 +20,12 @@ router.post('/register', registerUser);
 // Route: /check-eligibility 
 router.post('/check-eligibility', checkEligibility);
 router.post('/create-loan', createLoan)
+
+router.get('/view-loan/:loan_id', viewLoan);
+
+router.get('/make-payment/:customer_id/:loan_id', makePayment);
+
+
+router.get('/view-statement/:customer_id/:loan_id', viewStatement);
 
 export default router;
