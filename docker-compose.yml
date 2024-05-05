@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  cache:
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - cache:/data
+  postgresdb:
+    image: postgres
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - POSTGRES_USER=${POSTGRESDB_USER}
+      - POSTGRES_PASSWORD=${POSTGRESDB_PASSWORD}
+      - POSTGRES_DB=${POSTGRESDB_DATABASE}
+    ports:
+      - $POSTGRESDB_LOCAL_PORT:$POSTGRESDB_PORT
+    volumes:
+      - db:/var/lib/postgres
+  app:
+    depends_on:
+      - cache
+      - postgresdb
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - $APP_LOCAL_PORT:$APP_LOCAL_PORT
+    environment:
+      - DB_HOST=postgresdb
+      - DB_USER=${POSTGRESDB_USER}
+      - DB_PASSWORD=${POSTGRESDB_PASSWORD}
+      - DB_NAME=${POSTGRESDB_DATABASE}
+      - DB_PORT=${POSTGRESDB_PORT}
+      - DATABASE_URL=postgresql://${POSTGRESDB_USER}:${POSTGRESDB_PASSWORD}@postgresdb:${POSTGRESDB_PORT}/${POSTGRESDB_DATABASE}
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    stdin_open: true
+    tty: true
+
+volumes:
+  db:
+  cache:
+  
+
