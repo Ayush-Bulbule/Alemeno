@@ -10,7 +10,7 @@ const ingestLoanData = async (req, res) => {
         await triggerLoanDataIngestion(filePath);
 
         // Send a success response to the client
-        res.status(200).json({ message: 'Data Ingestion Triggered successfully' });
+        res.status(200).json({ message: 'Loan Ingestion Triggered successfully' });
     } catch (error) {
         // Handle any errors that occur during the data ingestion process
         console.error('Error triggering data ingestion:', error);
@@ -28,7 +28,7 @@ const ingestCustomerData = async (req, res) => {
         await triggerCustomerDataIngestion(filePath);
 
         // Send a success response to the client
-        res.status(200).json({ message: 'Data Ingestion Triggered successfully' });
+        res.status(200).json({ message: 'Customer Data Ingestion Triggered successfully' });
     } catch (error) {
         // Handle any errors that occur during the data ingestion process
         console.error('Error triggering data ingestion:', error);

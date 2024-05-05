@@ -22,22 +22,23 @@ model Customer {
   phone_number   String
   monthly_salary BigInt
   approved_limit BigInt
-  current_debt   BigInt
+  current_debt   BigInt   @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  Loan           Loan[]
 }
-
 model Loan {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   loan_id         Int
+  customer        Customer  @relation(fields: [customer_id], references: [id])
   customer_id     Int
-  loan_amount     BigInt
+  loan_amount     Decimal   
   tenure          Int
-  interest_rate   Int
-  monthly_payment Int
+  interest_rate   Float     
+  monthly_payment Decimal   
   emi_paid        Int
   approval_date   DateTime
   end_date        DateTime
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }

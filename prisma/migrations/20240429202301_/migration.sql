@@ -1,5 +1,6 @@
 -- CreateTable
 CREATE TABLE "Customer" (
+    "id" SERIAL NOT NULL,
     "customer_id" INTEGER NOT NULL,
     "first_name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
@@ -7,15 +8,16 @@ CREATE TABLE "Customer" (
     "phone_number" TEXT NOT NULL,
     "monthly_salary" BIGINT NOT NULL,
     "approved_limit" BIGINT NOT NULL,
-    "current_debt" BIGINT NOT NULL,
+    "current_debt" BIGINT NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Customer_pkey" PRIMARY KEY ("customer_id")
+    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Loan" (
+    "id" SERIAL NOT NULL,
     "loan_id" INTEGER NOT NULL,
     "customer_id" INTEGER NOT NULL,
     "loan_amount" BIGINT NOT NULL,
@@ -28,14 +30,8 @@ CREATE TABLE "Loan" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Loan_pkey" PRIMARY KEY ("loan_id")
+    CONSTRAINT "Loan_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "Customer_customer_id_key" ON "Customer"("customer_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Loan_loan_id_key" ON "Loan"("loan_id");
-
 -- AddForeignKey
-ALTER TABLE "Loan" ADD CONSTRAINT "Loan_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "Customer"("customer_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Loan" ADD CONSTRAINT "Loan_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
